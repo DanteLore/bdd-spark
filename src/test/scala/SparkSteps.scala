@@ -1,6 +1,7 @@
 import cucumber.api.DataTable
 import cucumber.api.scala.{EN, ScalaDsl}
 import org.scalatest.Matchers
+
 import scala.collection.convert.wrapAsScala._
 
 case class HousePriceRow(price : Int, postcode : String, houseType : String)
