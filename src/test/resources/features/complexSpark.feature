@@ -4,11 +4,6 @@ Feature: Complex Spark
   As Dan
   I want to be able to load house price data, join it to postcode location data, filter it by bounding box and save it
 
-
-  Array([NN14 6TN,180000,S,51.3,-1.0], [NN14 6TN,249000,D,51.3,-1.0], [NN3 8HJ,137000,T,51.2,-1.1], [NN9 6LS,318000,D,51.1,-1.2])
-  Array([318000,NN9 6LS,D,51.1,-1.2], [137000,NN3 8HJ,T,51.2,-1.1], [180000,NN14 6TN,S,51.3,-1.0], [249000,NN14 6TN,D,51.3,-1.0])
-
-
   Scenario: Joining data from two data frames to create a new data frame of results
     Given a table of data in a temp table called "housePrices"
       | Price:Int  | Postcode:String | HouseType:String |
