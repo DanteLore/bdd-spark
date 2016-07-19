@@ -70,11 +70,36 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
     result.registerTempTable("results")
   }
 
-  Then("""^the parquet data written to "([^"]*)" is$"""){ (filename:String, expectedData:DataTable) =>
+  Then("""^the data in temp table "([^"]*)" is$"""){ (tableName: String, expectedData: DataTable) =>
     val expected = dataTableToDataFrame(expectedData)
-    val actual = Spark.sqlContext.sql("select * from results")
+    val actual = Spark.sqlContext.sql(s"select * from $tableName")
 
     actual.count() shouldEqual expected.count()
     expected.intersect(actual).count() shouldEqual 0
+  }
+
+  var parquetFilename = ""
+  var savedData = Spark.sqlContext.emptyDataFrame
+
+  class MockParquetWriter extends ParquetWriter {
+    override def write(df: DataFrame, path: String): Unit = {
+      parquetFilename = path
+      savedData = df
+    }
+  }
+
+  When("""^I join the data and save to parquet$"""){ () =>
+    val housePrices = Spark.sqlContext.sql("select * from housePrices")
+    val postcodes = Spark.sqlContext.sql("select * from postcodes")
+
+    val result = HousePriceDataBusinessLogic.processHousePricesAndSaveToParquet(housePrices, postcodes, new MockParquetWriter)
+  }
+
+  Then("""^the parquet data written to "([^"]*)" is$"""){ (expectedFilename: String, expectedData: DataTable) =>
+    val expected = dataTableToDataFrame(expectedData)
+
+    parquetFilename shouldEqual expectedFilename
+    savedData.count() shouldEqual expected.count()
+    expected.intersect(savedData).count() shouldEqual 0
   }
 }
