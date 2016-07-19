@@ -7,7 +7,7 @@ import org.apache.spark.sql.types._
 import scala.collection.convert.wrapAsScala._
 
 class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
-  Given("""^a table of data in a temp table called "([^"]*)"$""") { (tableName: String, data: DataTable) =>
+  def dataTableToDataFrame(data: DataTable): DataFrame = {
     val fieldSpec = data
       .topCells()
       .map(_.split(':'))
@@ -24,7 +24,7 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
       }
 
     val schema = StructType(
-        fieldSpec
+      fieldSpec
         .map { case (name, dataType) =>
           StructField(name, dataType, nullable = false)
         }
@@ -51,16 +51,30 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
       .toList
 
     val df = Spark.sqlContext.createDataFrame(Spark.sc.parallelize(rows), schema)
+    df
+  }
+
+  Given("""^a table of data in a temp table called "([^"]*)"$""") { (tableName: String, data: DataTable) =>
+    val df = dataTableToDataFrame(data)
+    df.registerTempTable(tableName)
 
     df.printSchema()
     df.show()
   }
 
   When("""^I join the data$"""){ () =>
+    val housePrices = Spark.sqlContext.sql("select * from housePrices")
+    val postcodes = Spark.sqlContext.sql("select * from postcodes")
 
+    val result = HousePriceDataBusinessLogic.processHousePrices(housePrices, postcodes)
+    result.registerTempTable("results")
   }
 
-  Then("""^the parquet data written to "([^"]*)" is$"""){ (filename:String, expected:DataTable) =>
+  Then("""^the parquet data written to "([^"]*)" is$"""){ (filename:String, expectedData:DataTable) =>
+    val expected = dataTableToDataFrame(expectedData)
+    val actual = Spark.sqlContext.sql("select * from results")
 
+    actual.count() shouldEqual expected.count()
+    expected.intersect(actual).count() shouldEqual 0
   }
 }
