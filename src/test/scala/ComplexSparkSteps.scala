@@ -21,7 +21,7 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
         case (name, "long") => (name, DataTypes.LongType)
         case (name, "boolean") => (name, DataTypes.BooleanType)
         case (name, "bool") => (name, DataTypes.BooleanType)
-        case (name, _) => (name, StringType)
+        case (name, _) => (name, DataTypes.StringType)
       }
 
     val schema = StructType(
@@ -106,12 +106,12 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
 
   var files = Map[String, String]()
 
-  Given("""^a file called "([^"]*)" containing$"""){ (filename:String, data:String) =>
-    files = files + (filename -> data)
-  }
-
   class MockFileReader extends FileReader{
     override def readFile(filename: String): RDD[String] = Spark.sc.parallelize(files(filename).split('\n'))
+  }
+
+  Given("""^a file called "([^"]*)" containing$"""){ (filename:String, data:String) =>
+    files = files + (filename -> data)
   }
 
   When("""^I read the data from "([^"]*)" and "([^"]*)" join then save to parquet$"""){ (priceFile:String, postcodeFile:String) =>
