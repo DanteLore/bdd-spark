@@ -1,6 +1,6 @@
 # Behaviour Driven Development for Spark
 
-Because your code does something very clever but your users don't have a clue how to read Scala!
+Because your code does something very clever but your stakeholders don't have a clue how to read Scala!
 
 ```cucumber
 Scenario: Read data from CSV files, join and save it to parquet
