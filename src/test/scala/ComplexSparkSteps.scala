@@ -1,5 +1,6 @@
 import cucumber.api.DataTable
 import cucumber.api.scala.{EN, ScalaDsl}
+import org.apache.spark.rdd.RDD
 import org.scalatest.Matchers
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
@@ -101,5 +102,19 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
     parquetFilename shouldEqual expectedFilename
     savedData.count() shouldEqual expected.count()
     expected.intersect(savedData).count() shouldEqual 0
+  }
+
+  var files = Map[String, String]()
+
+  Given("""^a file called "([^"]*)" containing$"""){ (filename:String, data:String) =>
+    files = files + (filename -> data)
+  }
+
+  class MockFileReader extends FileReader{
+    override def readFile(filename: String): RDD[String] = Spark.sc.parallelize(files(filename).split('\n'))
+  }
+
+  When("""^I read the data from "([^"]*)" and "([^"]*)" join then save to parquet$"""){ (priceFile:String, postcodeFile:String) =>
+    HousePriceDataBusinessLogic.processDataFromFilesAndSaveToParquet(new MockFileReader, priceFile, postcodeFile, new MockParquetWriter)
   }
 }
