@@ -1,13 +1,19 @@
 import org.apache.spark.rdd.RDD
 
 trait FileReader {
-  def readFile(filename : String) : RDD[String]
+  def readLinesToRdd(filename : String) : RDD[String]
+  def readText(filename : String) : String
 }
 
 object FileReader {
   class RealFileReader extends FileReader{
-    override def readFile(filename: String): RDD[String] = {
+    override def readLinesToRdd(filename: String): RDD[String] = {
       Spark.sc.textFile(filename)
+    }
+
+    override def readText(filename: String): String = {
+      //Whatever!
+      ""
     }
   }
 

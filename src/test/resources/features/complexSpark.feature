@@ -67,3 +67,42 @@ Feature: Complex Spark
       | 137000     | NN3 8HJ         | T                | 51.2            | -1.1             |
       | 180000     | NN14 6TN        | S                | 51.3            | -1.0             |
       | 249000     | NN14 6TN        | D                | 51.3            | -1.0             |
+
+
+  Scenario: CSVs plus GeoJSON then join Filter and save to Parquet
+    Given a file called "housePrices.csv" containing
+    """
+      318000,NN9 6LS,D
+      137000,NN3 8HJ,T
+      180000,NN14 6TN,S
+      249000,NN14 6TN,D
+    """
+    And a file called "postcodes.csv" containing
+    """
+      NN9 6LS,51.1,-1.2
+      NN3 8HJ,51.2,-1.1
+      NN14 6TN,51.3,-1.0
+    """
+    And a file called "boundingbox.json" containing
+    """
+    {
+      "type":"FeatureCollection",
+      "features": [
+        {
+          "type":"Feature",
+          "geometry": {
+            "type":"Polygon",
+            "coordinates": [ [-1.05,50.0], [-2.0,60.0] ]
+          },
+          "properties": {
+            "name":"area1"
+          }
+        }
+      ]
+    }
+    """
+    When I read the data from "housePrices.csv" and "postcodes.csv" join it filter it using "boundingbox.json" then save to parquet
+    Then the parquet data written to "results.parquet" is
+      | Price:Int  | Postcode:String | HouseType:String | Latitude:Double | Longitude:Double |
+      | 318000     | NN9 6LS         | D                | 51.1            | -1.2             |
+      | 137000     | NN3 8HJ         | T                | 51.2            | -1.1             |

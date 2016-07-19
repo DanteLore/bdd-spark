@@ -107,7 +107,8 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
   var files = Map[String, String]()
 
   class MockFileReader extends FileReader{
-    override def readFile(filename: String): RDD[String] = Spark.sc.parallelize(files(filename).split('\n'))
+    override def readLinesToRdd(filename: String): RDD[String] = Spark.sc.parallelize(files(filename).split('\n'))
+    override def readText(filename: String): String = files(filename)
   }
 
   Given("""^a file called "([^"]*)" containing$"""){ (filename:String, data:String) =>
@@ -116,5 +117,9 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
 
   When("""^I read the data from "([^"]*)" and "([^"]*)" join then save to parquet$"""){ (priceFile:String, postcodeFile:String) =>
     HousePriceDataBusinessLogic.processDataFromFilesAndSaveToParquet(new MockFileReader, priceFile, postcodeFile, new MockParquetWriter)
+  }
+
+  When("""^I read the data from "([^"]*)" and "([^"]*)" join it filter it using "([^"]*)" then save to parquet$"""){ (priceFile: String, postcodeFile: String, geoFile : String) =>
+    HousePriceDataBusinessLogic.processDataFromFilesFilterItThenSaveItToParquet(new MockFileReader, geoFile, priceFile, postcodeFile, new MockParquetWriter)
   }
 }
