@@ -79,13 +79,10 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
     expected.intersect(actual).count() shouldEqual 0
   }
 
-  var parquetFilename = ""
-  var savedData = Spark.sqlContext.emptyDataFrame
-
   class MockParquetWriter extends ParquetWriter {
     override def write(df: DataFrame, path: String): Unit = {
-      parquetFilename = path
-      savedData = df
+      Context.parquetFilename = path
+      Context.savedData = df
     }
   }
 
@@ -99,20 +96,18 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
   Then("""^the parquet data written to "([^"]*)" is$"""){ (expectedFilename: String, expectedData: DataTable) =>
     val expected = dataTableToDataFrame(expectedData)
 
-    parquetFilename shouldEqual expectedFilename
-    savedData.count() shouldEqual expected.count()
-    expected.intersect(savedData).count() shouldEqual 0
+    Context.parquetFilename shouldEqual expectedFilename
+    Context.savedData.count() shouldEqual expected.count()
+    expected.intersect(Context.savedData).count() shouldEqual 0
   }
 
-  var files = Map[String, String]()
-
   class MockFileReader extends FileReader{
-    override def readLinesToRdd(filename: String): RDD[String] = Spark.sc.parallelize(files(filename).split('\n'))
-    override def readText(filename: String): String = files(filename)
+    override def readLinesToRdd(filename: String): RDD[String] = Spark.sc.parallelize(Context.files(filename).split('\n'))
+    override def readText(filename: String): String = Context.files(filename)
   }
 
   Given("""^a file called "([^"]*)" containing$"""){ (filename:String, data:String) =>
-    files = files + (filename -> data)
+    Context.files = Context.files + (filename -> data)
   }
 
   When("""^I read the data from "([^"]*)" and "([^"]*)" join then save to parquet$"""){ (priceFile:String, postcodeFile:String) =>
