@@ -18,6 +18,21 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
     numberOfRomeos / numberOfLines
   }
 
+  def averageWordsPerLine(reader: FileReader, filename: String, word: String): Int = {
+    // The more obvious lines.sum(...) / lines.count(...) above means iterating twice. Which isn't very Sparky!
+
+    val x = reader
+      .readLinesToRdd(filename)
+      .map(_.toLowerCase())
+      .map { line =>
+        line.split("\\W").count(_ == word)
+      }
+      .map((_, 1))
+      .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
+
+    x._1 / x._2
+  }
+
   def countSpokenWordsDanStyle(reader : FileReader, filename : String) : Long = {
     val pattern = "^.*:(.*)$".r
 
@@ -58,5 +73,9 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
   When("""^I count spoken words Dan style from file "([^"]*)"$"""){ (filename:String) =>
     // Inject the file reader - so it's like production code!
     Context.result = countSpokenWordsDanStyle(new MockFileReader(), filename).toInt
+  }
+
+  When("""^I calculate the average "([^"]*)" count per line in "([^"]*)"$"""){ (word:String, filename:String) =>
+    Context.result = averageWordsPerLine(new MockFileReader(), filename, word)
   }
 }

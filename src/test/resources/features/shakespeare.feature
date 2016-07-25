@@ -30,6 +30,15 @@ Feature: shakespeare wordcount
      When I average the romeos
      Then the result is '2'
 
+  Scenario: Average number of Romeos with file reader injection and map reduce
+    Given a file called "shakespeare.txt" containing
+     """
+     Romeo, Romeo wherefore art thou Romeo?
+     Where is my Romeo?
+     """
+    When I calculate the average "romeo" count per line in "shakespeare.txt"
+    Then the result is '2'
+
   Scenario: Only count the spoken words
     Given a file called "shakespeare" containing
      """
@@ -43,7 +52,7 @@ Feature: shakespeare wordcount
     When I count spoken words
     Then the result is '8'
 
-  Scenario: Only count the spoken words
+  Scenario: Only count the spoken words injecting a file reader
     Given a file called "shakespeare.txt" containing
      """
      Juliet: Romeo, Romeo wherefore art thou Romeo?
