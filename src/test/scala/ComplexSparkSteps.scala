@@ -101,11 +101,6 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
     expected.intersect(Context.savedData).count() shouldEqual 0
   }
 
-  class MockFileReader extends FileReader{
-    override def readLinesToRdd(filename: String): RDD[String] = Spark.sc.parallelize(Context.files(filename).split('\n'))
-    override def readText(filename: String): String = Context.files(filename)
-  }
-
   Given("""^a file called "([^"]*)" containing$"""){ (filename:String, data:String) =>
     Context.files = Context.files + (filename -> data)
   }

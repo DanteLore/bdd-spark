@@ -12,7 +12,6 @@ Feature: shakespeare wordcount
     When I count the words
     Then the result is '6'
 
-
    Scenario: Counting the number of romeos in shakespeare
      Given a file called "shakespeare" containing
      """
@@ -31,8 +30,8 @@ Feature: shakespeare wordcount
      When I average the romeos
      Then the result is '2'
 
-   Scenario: Only count the spoken words
-     Given a file called "shakespeare" containing
+  Scenario: Only count the spoken words
+    Given a file called "shakespeare" containing
      """
      Juliet: Romeo, Romeo wherefore art thou Romeo?
      [Romeo ingests poison]
@@ -41,5 +40,18 @@ Feature: shakespeare wordcount
      Juliet: OMGIES
      [Juliet Also injests poison]
      """
-     When I count spoken words
-     Then the result is '8'
+    When I count spoken words
+    Then the result is '8'
+
+  Scenario: Only count the spoken words
+    Given a file called "shakespeare.txt" containing
+     """
+     Juliet: Romeo, Romeo wherefore art thou Romeo?
+     [Romeo ingests poison]
+     [Juliet Wakes]
+     Romeo: Woops
+     Juliet: OMGIES
+     [Juliet Also injests poison]
+     """
+    When I count spoken words Dan style from file "shakespeare.txt"
+    Then the result is '8'
