@@ -45,6 +45,24 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
       .count()
   }
 
+  def generateWordCounts(reader: FileReader, filename: String, tablename: String): Unit = {
+    import Spark.sqlContext.implicits._
+
+    val pattern = "^.*:(.*)$".r
+
+    reader
+      .readLinesToRdd(filename)
+      .filter(x => x.matches("^.+:.*"))
+      .map { case pattern(c) => c}
+      .flatMap(_.split("\\W"))
+      .filter(_.length > 0)
+      .map(_.toLowerCase)
+      .map((_, 1))
+      .reduceByKey(_ + _)
+      .toDF("word", "count")
+      .registerTempTable(tablename)
+  }
+
   When("""^I count the words$""") { () =>
     val words = Context.files("shakespeare")
     Context.result = countWords(words)
@@ -77,5 +95,9 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
 
   When("""^I calculate the average "([^"]*)" count per line in "([^"]*)"$"""){ (word:String, filename:String) =>
     Context.result = averageWordsPerLine(new MockFileReader(), filename, word)
+  }
+
+  When("""^I count the spoken words in "([^"]*)" saving results to table "([^"]*)"$"""){ (filename:String, tablename:String) =>
+    generateWordCounts(new MockFileReader(), filename, tablename)
   }
 }

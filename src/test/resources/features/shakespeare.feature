@@ -1,4 +1,4 @@
-Feature: shakespeare wordcount
+Feature: shakespeare word count
 
   In order to know the amount of words in shakespeare's completed works
   As a thespian actor
@@ -60,7 +60,28 @@ Feature: shakespeare wordcount
      [Juliet Wakes]
      Romeo: Woops
      Juliet: OMGIES
-     [Juliet Also injests poison]
+     [Juliet Also ingests poison]
      """
     When I count spoken words Dan style from file "shakespeare.txt"
     Then the result is '8'
+
+  @wip
+  Scenario: Count the most popular spoken words
+    Given a file called "shakespeare.txt" containing
+     """
+     Juliet: Romeo, Romeo wherefore art thou Romeo?
+     [Romeo ingests poison]
+     [Juliet Wakes]
+     Romeo: Woops
+     Juliet: OMGIES
+     [Juliet Also ingests poison]
+     """
+    When I count the spoken words in "shakespeare.txt" saving results to table "wordCounts"
+    Then the data in temp table "wordCounts" is
+      | word:String  | count:Int |
+      | romeo        | 3         |
+      | wherefore    | 1         |
+      | art          | 1         |
+      | thou         | 1         |
+      | omgies       | 1         |
+      | woops        | 1         |

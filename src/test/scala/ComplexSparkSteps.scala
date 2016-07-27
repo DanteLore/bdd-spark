@@ -72,11 +72,20 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
   }
 
   Then("""^the data in temp table "([^"]*)" is$"""){ (tableName: String, expectedData: DataTable) =>
-    val expected = dataTableToDataFrame(expectedData)
-    val actual = Spark.sqlContext.sql(s"select * from $tableName")
+    val expectedDf = dataTableToDataFrame(expectedData)
+    val actualDf = Spark.sqlContext.sql(s"select * from $tableName")
+
+    val cols = expectedDf.schema.map(_.name).sorted
+
+    val expected = expectedDf.select(cols.head, cols.tail: _*)
+    val actual = actualDf.select(cols.head, cols.tail: _*)
+
+    println("Comparing DFs (expected, actual):")
+    expected.show()
+    actual.show()
 
     actual.count() shouldEqual expected.count()
-    expected.intersect(actual).count() shouldEqual 0
+    expected.intersect(actual).count() shouldEqual expected.count()
   }
 
   class MockParquetWriter extends ParquetWriter {
