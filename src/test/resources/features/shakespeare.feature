@@ -65,7 +65,6 @@ Feature: shakespeare word count
     When I count spoken words Dan style from file "shakespeare.txt"
     Then the result is '8'
 
-  @wip
   Scenario: Count the most popular spoken words
     Given a file called "shakespeare.txt" containing
      """
