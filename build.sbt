@@ -14,8 +14,10 @@ libraryDependencies ++= Seq(
   "info.cukes" %% "cucumber-scala" % "1.2.4" % "test",
   "info.cukes" % "cucumber-jvm" % "1.2.4" % "test",
   "info.cukes" % "cucumber-junit" % "1.2.4" % "test",
+  "info.cukes" % "cucumber-picocontainer" % "1.2.4" % "test",
   "junit" % "junit" % "4.12" % "test",
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  "com.novocode" % "junit-interface" % "0.10" % "test",
+  "org.scalatest" %% "scalatest" % "2.2.0" % "test"
 )
 
 enablePlugins(CucumberPlugin)
