@@ -10,6 +10,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "1.6.0",
   "org.apache.spark" %% "spark-mllib" % "1.6.0",
   "org.json4s" %% "json4s-jackson" % "3.2.7",
+
   "info.cukes" % "cucumber-core" % "1.2.4" % "test",
   "info.cukes" %% "cucumber-scala" % "1.2.4" % "test",
   "info.cukes" % "cucumber-jvm" % "1.2.4" % "test",

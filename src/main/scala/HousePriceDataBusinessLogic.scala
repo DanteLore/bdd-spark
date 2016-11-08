@@ -12,7 +12,11 @@ object HousePriceDataBusinessLogic {
     parquetWriter.write(housePrices.join(postcodes, "Postcode"), "results.parquet")
   }
 
-  def processDataFromFilesFilterItThenSaveItToParquet(reader: FileReader, geoFilename : String, priceFilename: String, postcodeFileName: String, writer: ParquetWriter) : Unit = {
+  def processDataFromFilesFilterItThenSaveItToParquet(reader: FileReader,
+                                                      geoFilename : String,
+                                                      priceFilename: String,
+                                                      postcodeFileName: String,
+                                                      writer: ParquetWriter) : Unit = {
     val joined = loadAndJoin(reader, priceFilename, postcodeFileName)
 
     // If this was real code, a geoJSON library would be sensible here. Dirty code follows:

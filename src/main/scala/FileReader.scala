@@ -17,5 +17,5 @@ object FileReader {
     }
   }
 
-  def apply() = new RealFileReader
+  def apply() : FileReader = new RealFileReader
 }
