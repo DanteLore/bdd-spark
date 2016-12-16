@@ -33,9 +33,16 @@ class SparkSteps extends ScalaDsl with EN with Matchers {
       .map(x => x.get(0))
       .collect()
       .foreach(x => result = x)
+
   }
 
   Then("""^the query result is '(\d+)'$"""){ (expected:Int) =>
     result shouldEqual expected
   }
+
+  Given("""^i am peter$"""){ () =>
+    //// Write code here that turns the phrase above into concrete actions
+    //throw new PendingException()
+  }
+
 }

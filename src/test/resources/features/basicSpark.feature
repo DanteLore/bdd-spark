@@ -44,3 +44,4 @@ Feature: Basic Spark
     | select max(price) as price from housePrices | 1225000     |
     | select min(price) as price from housePrices | 127000      |
     | select count(1) as cnt from housePrices     | 10          |
+
