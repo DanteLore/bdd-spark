@@ -47,7 +47,7 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
     val fieldSpec = data
       .topCells()
       .map(_.split(':'))
-      .map(splits => (splits(0), splits(1).toLowerCase))
+      .map(splits => (splits(0).trim, splits(1).toLowerCase.trim))
       .map {
         case (name, "string") => (name, DataTypes.StringType)
         case (name, "double") => (name, DataTypes.DoubleType)

@@ -38,7 +38,7 @@ Feature: Do some stuff with house prices
 
   Scenario: Calculate the average, min and max house price, by year
     Given a table of data in a temp table called "housePricesWithYear"
-      | postcode: String | price: Int | date: String |
+      | postcode : String | price : Int | date : String |
       | AB54 T34         | 1          | 2014         |
       | BG45 4PQ         | 2          | 2015         |
       | BF45 5PZ         | 3          | 2015         |
