@@ -3,7 +3,7 @@ object Context {
   var result :Long = 0
 
   var parquetFilename = ""
-  var savedData = Spark.sqlContext.emptyDataFrame
+  var savedData = Spark.spark.emptyDataFrame
 
   var files = Map[String, String]()
 }

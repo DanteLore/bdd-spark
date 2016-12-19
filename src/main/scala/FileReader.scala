@@ -8,7 +8,7 @@ trait FileReader {
 object FileReader {
   class RealFileReader extends FileReader{
     override def readLinesToRdd(filename: String): RDD[String] = {
-      Spark.sc.textFile(filename)
+      Spark.spark.sparkContext.textFile(filename)
     }
 
     override def readText(filename: String): String = {

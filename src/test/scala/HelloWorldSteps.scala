@@ -1,5 +1,4 @@
 import cucumber.api.scala.{EN, ScalaDsl}
-import org.apache.spark.rdd.RDD
 import org.scalatest.Matchers
 
 class HelloWorldSteps extends ScalaDsl with EN with Matchers {

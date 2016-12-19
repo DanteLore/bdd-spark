@@ -8,12 +8,13 @@ case class HousePriceRow(price : Int, postcode : String, houseType : String)
 
 class SparkSteps extends ScalaDsl with EN with Matchers {
 
-  import Spark.sqlContext.implicits._
+  import Spark._
+  import spark.implicits._
 
   var result : Any = 0
 
   When("""^I count the words in "([^"]*)"$"""){ (input:String) =>
-    result = Spark.sc.parallelize(input.split(' ')).count()
+    result = spark.sparkContext.parallelize(input.split(' ')).count()
   }
 
   Then("""^the number of words is '(\d+)'$"""){ (expected:Long) =>
@@ -22,27 +23,22 @@ class SparkSteps extends ScalaDsl with EN with Matchers {
 
   Given("""^a table of house price data in a temp table "([^"]*)"$"""){ (tableName : String, table:DataTable) =>
     val data = table.asList[HousePriceRow](classOf[HousePriceRow]).toList
-    Spark.sc.parallelize(data)
+    spark.sparkContext.parallelize(data)
       .toDF()
-      .registerTempTable(tableName)
+      .createOrReplaceTempView(tableName)
   }
 
   When("""^I execute SQL "([^"]*)"$"""){ (sql:String) =>
-    val x = Spark.sqlContext
+    val x = spark
       .sql(sql)
-      .map(x => x.get(0))
       .collect()
-      .foreach(x => result = x)
+      .head
+      .get(0)
 
+    result = x
   }
 
   Then("""^the query result is '(\d+)'$"""){ (expected:Int) =>
     result shouldEqual expected
   }
-
-  Given("""^i am peter$"""){ () =>
-    //// Write code here that turns the phrase above into concrete actions
-    //throw new PendingException()
-  }
-
 }

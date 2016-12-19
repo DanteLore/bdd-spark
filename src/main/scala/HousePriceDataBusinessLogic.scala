@@ -4,6 +4,8 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 object HousePriceDataBusinessLogic {
+  import Spark._
+
   def processHousePrices(housePrices : DataFrame, postcodes : DataFrame) : DataFrame = {
     housePrices.join(postcodes, "Postcode")
   }
@@ -60,7 +62,7 @@ object HousePriceDataBusinessLogic {
       .map(row => row.map(_.trim()))
       .map(splits => Row(splits(0).toInt, splits(1), splits(2)))
 
-    val priceDf = Spark.sqlContext.createDataFrame(prices, priceSchema)
+    val priceDf = spark.createDataFrame(prices, priceSchema)
 
     val postcodeSchema = StructType(Seq(
       StructField("Postcode", DataTypes.StringType),
@@ -74,7 +76,7 @@ object HousePriceDataBusinessLogic {
       .map(row => row.map(_.trim()))
       .map(splits => Row(splits(0), splits(1).toDouble, splits(2).toDouble))
 
-    val postcodeDf = Spark.sqlContext.createDataFrame(postcodes, postcodeSchema)
+    val postcodeDf = spark.createDataFrame(postcodes, postcodeSchema)
 
     val joined = priceDf.join(postcodeDf, "Postcode")
     joined

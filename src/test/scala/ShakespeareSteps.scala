@@ -2,6 +2,8 @@ import cucumber.api.scala.{EN, ScalaDsl}
 import org.scalatest.Matchers
 
 class ShakespeareSteps extends ScalaDsl with EN with Matchers {
+  import Spark._
+
   def countWords(words: String): Int = {
     words.split(" ").length
   }
@@ -46,7 +48,7 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
   }
 
   def generateWordCounts(reader: FileReader, filename: String, tablename: String): Unit = {
-    import Spark.sqlContext.implicits._
+    import spark.sqlContext.implicits._
 
     val pattern = "^.*:(.*)$".r
 
@@ -60,7 +62,7 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
       .map((_, 1))
       .reduceByKey(_ + _)
       .toDF("word", "count")
-      .registerTempTable(tablename)
+      .createOrReplaceTempView(tablename)
   }
 
   When("""^I count the words$""") { () =>
@@ -75,7 +77,7 @@ class ShakespeareSteps extends ScalaDsl with EN with Matchers {
   }
 
   When("""^I average the romeos$""") { () =>
-    val words = Context.files("shakespeare");
+    val words = Context.files("shakespeare")
     Context.result = averageLineRomeo(words)
   }
 

@@ -1,20 +1,18 @@
-import org.apache.spark
-import org.apache.spark.sql.functions._
+
+// Yeah yeah, normally you wouldn't have a "main" for a spark app, but you get the idea.
 
 object HousePriceApp {
-  def toYear = udf((s : String) => s.substring(0, 4))
-
   def main(args: Array[String]): Unit = {
 
-    Spark.sqlContext
+    import Spark._
+
+    spark.sqlContext
       .read
-      .parquet("/Users/pcoward/Documents/house_price/house_price")
-        .withColumn("year", toYear(col("date")))
-      .registerTempTable("house_prices")
+      .parquet("/Users/DTAYLOR/Data/house_price/parquet")
+      .createOrReplaceTempView("house_prices")
 
     HousePrices.doItByPostcode("house_prices", "RG18 4EX", "poo")
 
-    Spark.sqlContext.sql("select * from poo").foreach(println)
-
+    spark.sql("select * from poo").foreach(x => println(x))
   }
 }

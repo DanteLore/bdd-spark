@@ -6,9 +6,9 @@ scalaVersion := "2.10.6"
 
 libraryDependencies ++= Seq(
   "log4j" % "log4j" % "1.2.14",
-  "org.apache.spark" %% "spark-core" % "1.6.0",
-  "org.apache.spark" %% "spark-sql" % "1.6.0",
-  "org.apache.spark" %% "spark-mllib" % "1.6.0",
+  "org.apache.spark" %% "spark-core" % "2.0.2",
+  "org.apache.spark" %% "spark-sql" % "2.0.2",
+  "org.apache.spark" %% "spark-mllib" % "2.0.2",
   "org.json4s" %% "json4s-jackson" % "3.2.7",
 
   "info.cukes" % "cucumber-core" % "1.2.4" % "test",
@@ -24,3 +24,5 @@ libraryDependencies ++= Seq(
 enablePlugins(CucumberPlugin)
 
 CucumberPlugin.glue := ""
+
+testOptions in Test := Seq(Tests.Filter(name => name.toLowerCase().contains("runtests")))
