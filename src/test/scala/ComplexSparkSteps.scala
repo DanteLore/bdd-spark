@@ -1,68 +1,14 @@
 import cucumber.api.DataTable
 import cucumber.api.scala.{EN, ScalaDsl}
 import org.apache.spark.sql._
-import org.apache.spark.sql.types._
 import org.scalatest.Matchers
 
-import scala.collection.convert.wrapAsScala._
-
 class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
+  import BddSpark._
   import Spark._
 
-  def dataTableToDataFrame(data: DataTable): DataFrame = {
-    val fieldSpec = getFieldSpec(data)
-
-    val schema = StructType(
-      fieldSpec
-        .map { case (name, dataType) =>
-          StructField(name, dataType, nullable = false)
-        }
-    )
-
-    val rows = data
-      .asMaps(classOf[String], classOf[String])
-      .map { row =>
-        val values = row
-          .values()
-          .zip(fieldSpec)
-          .map { case (v, (fn, dt)) => (v, dt) }
-          .map {
-            case (v, DataTypes.IntegerType) => v.toInt
-            case (v, DataTypes.DoubleType) => v.toDouble
-            case (v, DataTypes.LongType) => v.toLong
-            case (v, DataTypes.BooleanType) => v.toBoolean
-            case (v, DataTypes.StringType) => v
-          }
-          .toSeq
-
-        Row.fromSeq(values)
-      }
-      .toList
-
-    val df = spark.createDataFrame(spark.sparkContext.parallelize(rows), schema)
-    df
-  }
-
-  def getFieldSpec(data: DataTable): List[(String, DataType)] = {
-    val fieldSpec = data
-      .topCells()
-      .map(_.split(':'))
-      .map(splits => (splits(0).trim, splits(1).toLowerCase.trim))
-      .map {
-        case (name, "string") => (name, DataTypes.StringType)
-        case (name, "double") => (name, DataTypes.DoubleType)
-        case (name, "int") => (name, DataTypes.IntegerType)
-        case (name, "integer") => (name, DataTypes.IntegerType)
-        case (name, "long") => (name, DataTypes.LongType)
-        case (name, "boolean") => (name, DataTypes.BooleanType)
-        case (name, "bool") => (name, DataTypes.BooleanType)
-        case (name, _) => (name, DataTypes.StringType)
-      }
-    fieldSpec.toList
-  }
-
   Given("""^a table of data in a temp table called "([^"]*)"$""") { (tableName: String, data: DataTable) =>
-    val df = dataTableToDataFrame(data)
+    val df = data.toDF()
     df.createOrReplaceTempView(tableName)
 
     df.printSchema()
@@ -78,7 +24,7 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
   }
 
   Then("""^the data in temp table "([^"]*)" is$"""){ (tableName: String, expectedData: DataTable) =>
-    val expectedDf = dataTableToDataFrame(expectedData)
+    val expectedDf = expectedData.toDF()
     val actualDf = spark.sqlContext.sql(s"select * from $tableName").toDF()
 
     val cols = expectedDf.schema.map(_.name).sorted
@@ -109,7 +55,7 @@ class ComplexSparkSteps extends ScalaDsl with EN with Matchers {
   }
 
   Then("""^the parquet data written to "([^"]*)" is$"""){ (expectedFilename: String, expectedData: DataTable) =>
-    val expected = dataTableToDataFrame(expectedData)
+    val expected = expectedData.toDF()
 
     Context.parquetFilename shouldEqual expectedFilename
     Context.savedData.count() shouldEqual expected.count()
